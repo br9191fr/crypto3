@@ -13,12 +13,14 @@ class Node {
     public String type; // "directory" or "file"
     public String fullPath;
     public Long size;   // null for directory
+    public long folderId;
     public List<Node> children;
 
     public Node(String name, String type, String fullPath) {
         this.name = name;
         this.type = type;
         this.fullPath = fullPath;
+        this.folderId = -1;
         if (type.equals("directory")) {
             children = new ArrayList<>();
         }
@@ -29,7 +31,10 @@ class Node {
             if (displayAll) {
                 System.out.println("// File: " + fullPath +name);
             }
-            System.out.println("Call API upload file "+ name + " to path "+ fullPath);
+            System.out.println("Call API upload file "+ name + " to path "+ fullPath + "as :");
+            System.out.println("POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>>/safes/<mySAFE>/folders/<myFolderId>");
+            System.out.println("in body put file, filename, identifier and metadatas");
+            System.out.println("----------------------------------");
         }
         if (children != null) {
             for (Node child : children) {
@@ -42,6 +47,12 @@ class Node {
     }
     public String getType() {
         return type;
+    }
+    public long getFolderId() {
+        return folderId;
+    }
+    public void setFolderId(long folderId) {
+        this.folderId = folderId;
     }
 }
 public class ZipTools {
@@ -118,12 +129,21 @@ public class ZipTools {
         }
         System.out.println("// Directories");
         for (String key : directoryMap.keySet()) {
+            String k1 = key.substring(0, key.length()-1);
             if (directoryMap.get(key).getType().equals("directory")) {
                 if (!key.equals("/")) {
                     if (displayAll) {
                         System.out.println("// Dir: " + key);
                     }
-                    System.out.println("Call API create dir "+ key);
+                    System.out.println("Call API create dir "+ key + "as :");
+                    System.out.println("POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>/safes/<mySAFE>/folders ");
+                    System.out.println("Body {\n" +
+                            "    \"parentId\": \"{{homeFolder}}\",\n" +
+                            "    \"parentPath\": \"HOME\",\n" +
+                            "    \"name\":\""+ k1 + "\"\n" +
+                            "}");
+                    System.out.println("get id from response.folderId and save it in directoryMap.get(key).setFolderId(response.folderId)");
+                    System.out.println("----------------------------------");
                 }
             }
         }
