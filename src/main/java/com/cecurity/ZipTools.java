@@ -29,7 +29,7 @@ class Node {
             if (displayAll) {
                 System.out.println("// File: " + fullPath +name);
             }
-            System.out.println("Call API upload file "+ name + "to path "+ fullPath);
+            System.out.println("Call API upload file "+ name + " to path "+ fullPath);
         }
         if (children != null) {
             for (Node child : children) {
@@ -66,7 +66,7 @@ public class ZipTools {
         Node root = new Node("root", "directory", "/");
 
         Map<String, Node> directoryMap = new HashMap<>();
-        directoryMap.put("", root);
+        directoryMap.put("/", root);
         // System.out.println("Starting really");
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFilePath))) {
             ZipEntry entry;
@@ -119,7 +119,7 @@ public class ZipTools {
         System.out.println("// Directories");
         for (String key : directoryMap.keySet()) {
             if (directoryMap.get(key).getType().equals("directory")) {
-                if (!key.equals("")) {
+                if (!key.equals("/")) {
                     if (displayAll) {
                         System.out.println("// Dir: " + key);
                     }
