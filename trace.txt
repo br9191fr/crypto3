@@ -1,0 +1,304 @@
+Command to launch program
+
+Usage: java ZipTools <zipFilePath> <outputJsonPath>
+
+// java  -classpath ".\target\crypto3-0.2.jar;.\target\classes" com.cecurity.ZipTools .\check\export.zip .\check\export.json > trace.txt
+
+
+A partir de ceci
+------------------------------------------------------------------
+Archive:  export.zip
+    testing: artemis-divert-demo/     OK
+    testing: artemis-divert-demo/.env   OK
+    testing: artemis-divert-demo/src/   OK
+    testing: artemis-divert-demo/src/main/   OK
+    testing: artemis-divert-demo/src/main/java/   OK
+    testing: artemis-divert-demo/src/main/java/com/   OK
+    testing: artemis-divert-demo/src/main/java/com/example/   OK
+    testing: artemis-divert-demo/src/main/java/com/example/QueueMonitor.java   OK
+    testing: artemis-divert-demo/src/main/java/com/example/MessageConsumer.java   OK
+    testing: artemis-divert-demo/src/main/java/com/example/MessageProducer.java   OK
+    testing: artemis-divert-demo/src/main/resources/   OK
+    testing: artemis-divert-demo/src/main/resources/broker.xml   OK
+    testing: artemis-divert-demo/src/main/resources/monitor.properties   OK
+    testing: artemis-divert-demo/README.md   OK
+    testing: artemis-divert-demo/pom.xml   OK
+    testing: artemis-divert-demo/docker/   OK
+    testing: artemis-divert-demo/docker/etc-override/   OK
+    testing: artemis-divert-demo/docker/etc-override/broker.xml   OK
+    testing: artemis-divert-demo/docker-compose.yml   OK
+------------------------------------------------------------------
+Le program produit ceci
+
+cat export.json
+{
+  "name" : "root",
+  "type" : "directory",
+  "fullPath" : "/",
+  "size" : null,
+  "folderId" : -1,
+  "children" : [ {
+    "name" : "artemis-divert-demo",
+    "type" : "directory",
+    "fullPath" : "artemis-divert-demo/",
+    "size" : null,
+    "folderId" : -1,
+    "children" : [ {
+      "name" : ".env",
+      "type" : "file",
+      "fullPath" : "artemis-divert-demo/",
+      "size" : 42,
+      "folderId" : -1,
+      "children" : null
+    }, {
+      "name" : "src",
+      "type" : "directory",
+      "fullPath" : "artemis-divert-demo/src/",
+      "size" : null,
+      "folderId" : -1,
+      "children" : [ {
+        "name" : "main",
+        "type" : "directory",
+        "fullPath" : "artemis-divert-demo/src/main/",
+        "size" : null,
+        "folderId" : -1,
+        "children" : [ {
+          "name" : "java",
+          "type" : "directory",
+          "fullPath" : "artemis-divert-demo/src/main/java/",
+          "size" : null,
+          "folderId" : -1,
+          "children" : [ {
+            "name" : "com",
+            "type" : "directory",
+            "fullPath" : "artemis-divert-demo/src/main/java/com/",
+            "size" : null,
+            "folderId" : -1,
+            "children" : [ {
+              "name" : "example",
+              "type" : "directory",
+              "fullPath" : "artemis-divert-demo/src/main/java/com/example/",
+              "size" : null,
+              "folderId" : -1,
+              "children" : [ {
+                "name" : "QueueMonitor.java",
+                "type" : "file",
+                "fullPath" : "artemis-divert-demo/src/main/java/com/example/",
+                "size" : 12200,
+                "folderId" : -1,
+                "children" : null
+              }, {
+                "name" : "MessageConsumer.java",
+                "type" : "file",
+                "fullPath" : "artemis-divert-demo/src/main/java/com/example/",
+                "size" : 2350,
+                "folderId" : -1,
+                "children" : null
+              }, {
+                "name" : "MessageProducer.java",
+                "type" : "file",
+                "fullPath" : "artemis-divert-demo/src/main/java/com/example/",
+                "size" : 2654,
+                "folderId" : -1,
+                "children" : null
+              } ]
+            } ]
+          } ]
+        }, {
+          "name" : "resources",
+          "type" : "directory",
+          "fullPath" : "artemis-divert-demo/src/main/resources/",
+          "size" : null,
+          "folderId" : -1,
+          "children" : [ {
+            "name" : "broker.xml",
+            "type" : "file",
+            "fullPath" : "artemis-divert-demo/src/main/resources/",
+            "size" : 3609,
+            "folderId" : -1,
+            "children" : null
+          }, {
+            "name" : "monitor.properties",
+            "type" : "file",
+            "fullPath" : "artemis-divert-demo/src/main/resources/",
+            "size" : 321,
+            "folderId" : -1,
+            "children" : null
+          } ]
+        } ]
+      } ]
+    }, {
+      "name" : "README.md",
+      "type" : "file",
+      "fullPath" : "artemis-divert-demo/",
+      "size" : 5019,
+      "folderId" : -1,
+      "children" : null
+    }, {
+      "name" : "pom.xml",
+      "type" : "file",
+      "fullPath" : "artemis-divert-demo/",
+      "size" : 1364,
+      "folderId" : -1,
+      "children" : null
+    }, {
+      "name" : "docker",
+      "type" : "directory",
+      "fullPath" : "artemis-divert-demo/docker/",
+      "size" : null,
+      "folderId" : -1,
+      "children" : [ {
+        "name" : "etc-override",
+        "type" : "directory",
+        "fullPath" : "artemis-divert-demo/docker/etc-override/",
+        "size" : null,
+        "folderId" : -1,
+        "children" : [ {
+          "name" : "broker.xml",
+          "type" : "file",
+          "fullPath" : "artemis-divert-demo/docker/etc-override/",
+          "size" : 3609,
+          "folderId" : -1,
+          "children" : null
+        } ]
+      } ]
+    }, {
+      "name" : "docker-compose.yml",
+      "type" : "file",
+      "fullPath" : "artemis-divert-demo/",
+      "size" : 1105,
+      "folderId" : -1,
+      "children" : null
+    } ]
+  } ]
+}
+
+------------------------------------------------------------------
+et ceci
+------------------------------------------------------------------
+
+// La sortie est dans le fichier trace.txt ci-dessous
+
+// Directories
+Call API create dir artemis-divert-demo/src/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>/safes/<mySAFE>/folders 
+Body {
+    "parentId": "{{homeFolder}}",
+    "parentPath": "HOME",
+    "name":"artemis-divert-demo/src"
+}
+get id from response.folderId and save it in directoryMap.get(key).setFolderId(response.folderId)
+----------------------------------
+Call API create dir artemis-divert-demo/docker/etc-override/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>/safes/<mySAFE>/folders 
+Body {
+    "parentId": "{{homeFolder}}",
+    "parentPath": "HOME",
+    "name":"artemis-divert-demo/docker/etc-override"
+}
+get id from response.folderId and save it in directoryMap.get(key).setFolderId(response.folderId)
+----------------------------------
+Call API create dir artemis-divert-demo/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>/safes/<mySAFE>/folders 
+Body {
+    "parentId": "{{homeFolder}}",
+    "parentPath": "HOME",
+    "name":"artemis-divert-demo"
+}
+get id from response.folderId and save it in directoryMap.get(key).setFolderId(response.folderId)
+----------------------------------
+Call API create dir artemis-divert-demo/src/main/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>/safes/<mySAFE>/folders 
+Body {
+    "parentId": "{{homeFolder}}",
+    "parentPath": "HOME",
+    "name":"artemis-divert-demo/src/main"
+}
+get id from response.folderId and save it in directoryMap.get(key).setFolderId(response.folderId)
+----------------------------------
+Call API create dir artemis-divert-demo/src/main/java/com/example/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>/safes/<mySAFE>/folders 
+Body {
+    "parentId": "{{homeFolder}}",
+    "parentPath": "HOME",
+    "name":"artemis-divert-demo/src/main/java/com/example"
+}
+get id from response.folderId and save it in directoryMap.get(key).setFolderId(response.folderId)
+----------------------------------
+Call API create dir artemis-divert-demo/docker/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>/safes/<mySAFE>/folders 
+Body {
+    "parentId": "{{homeFolder}}",
+    "parentPath": "HOME",
+    "name":"artemis-divert-demo/docker"
+}
+get id from response.folderId and save it in directoryMap.get(key).setFolderId(response.folderId)
+----------------------------------
+Call API create dir artemis-divert-demo/src/main/java/com/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>/safes/<mySAFE>/folders 
+Body {
+    "parentId": "{{homeFolder}}",
+    "parentPath": "HOME",
+    "name":"artemis-divert-demo/src/main/java/com"
+}
+get id from response.folderId and save it in directoryMap.get(key).setFolderId(response.folderId)
+----------------------------------
+Call API create dir artemis-divert-demo/src/main/resources/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>/safes/<mySAFE>/folders 
+Body {
+    "parentId": "{{homeFolder}}",
+    "parentPath": "HOME",
+    "name":"artemis-divert-demo/src/main/resources"
+}
+get id from response.folderId and save it in directoryMap.get(key).setFolderId(response.folderId)
+----------------------------------
+Call API create dir artemis-divert-demo/src/main/java/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>/safes/<mySAFE>/folders 
+Body {
+    "parentId": "{{homeFolder}}",
+    "parentPath": "HOME",
+    "name":"artemis-divert-demo/src/main/java"
+}
+get id from response.folderId and save it in directoryMap.get(key).setFolderId(response.folderId)
+----------------------------------
+// Files
+Call API upload file broker.xml to path artemis-divert-demo/docker/etc-override/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>>/safes/<mySAFE>/folders/<myFolderId>
+in body put file, filename, identifier and metadatas
+----------------------------------
+Call API upload file .env to path artemis-divert-demo/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>>/safes/<mySAFE>/folders/<myFolderId>
+in body put file, filename, identifier and metadatas
+----------------------------------
+Call API upload file README.md to path artemis-divert-demo/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>>/safes/<mySAFE>/folders/<myFolderId>
+in body put file, filename, identifier and metadatas
+----------------------------------
+Call API upload file pom.xml to path artemis-divert-demo/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>>/safes/<mySAFE>/folders/<myFolderId>
+in body put file, filename, identifier and metadatas
+----------------------------------
+Call API upload file docker-compose.yml to path artemis-divert-demo/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>>/safes/<mySAFE>/folders/<myFolderId>
+in body put file, filename, identifier and metadatas
+----------------------------------
+Call API upload file QueueMonitor.java to path artemis-divert-demo/src/main/java/com/example/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>>/safes/<mySAFE>/folders/<myFolderId>
+in body put file, filename, identifier and metadatas
+----------------------------------
+Call API upload file MessageConsumer.java to path artemis-divert-demo/src/main/java/com/example/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>>/safes/<mySAFE>/folders/<myFolderId>
+in body put file, filename, identifier and metadatas
+----------------------------------
+Call API upload file MessageProducer.java to path artemis-divert-demo/src/main/java/com/example/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>>/safes/<mySAFE>/folders/<myFolderId>
+in body put file, filename, identifier and metadatas
+----------------------------------
+Call API upload file broker.xml to path artemis-divert-demo/src/main/resources/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>>/safes/<mySAFE>/folders/<myFolderId>
+in body put file, filename, identifier and metadatas
+----------------------------------
+Call API upload file monitor.properties to path artemis-divert-demo/src/main/resources/as :
+POST https://partition-rcte.cecurity.com/jersey-cfec-openapi/rest/vaults/<myCFEC>>/safes/<mySAFE>/folders/<myFolderId>
+in body put file, filename, identifier and metadatas
+----------------------------------
