@@ -1,0 +1,124 @@
+package com.cecurity;
+
+import com.github.javaparser.*;
+import com.github.javaparser.ast.*;
+import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.*;
+import com.github.javaparser.resolution.TypeSolver;
+
+import java.io.*;
+import java.util.*;
+
+public class MavenProjectAnalyzer {
+
+    static Map<String, Set<String>> dependencies = new HashMap<>();
+    static Set<String> projectClasses = new HashSet<>();
+
+    public static void main(String[] args) throws Exception {
+
+        if (args.length == 0) {
+            System.out.println("Usage: java com.cecurity.MavenProjectAnalyzer <projectRoot>");
+            return;
+        }
+
+        File srcDir = new File(args[0] + "/src/main/java");
+
+        setupSymbolSolver(srcDir);
+
+        scanDirectory(srcDir);
+
+        generatePlantUML("uml-diagram.puml");
+
+        System.out.println("UML diagram generated: uml-diagram.puml");
+    }
+
+    private static void setupSymbolSolver(File sourceRoot) {
+
+        CombinedTypeSolver solver = new CombinedTypeSolver();
+
+        solver.add(new ReflectionTypeSolver());
+        solver.add(new JavaParserTypeSolver(sourceRoot));
+
+        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(solver);
+
+        ParserConfiguration config = new ParserConfiguration();
+        config.setSymbolResolver(symbolSolver);
+
+        StaticJavaParser.setConfiguration(config);
+    }
+
+    private static void scanDirectory(File dir) throws Exception {
+
+        for (File file : Objects.requireNonNull(dir.listFiles())) {
+
+            if (file.isDirectory()) {
+                scanDirectory(file);
+            }
+
+            if (file.getName().endsWith(".java")) {
+
+                CompilationUnit cu = StaticJavaParser.parse(file);
+
+                new ClassVisitor().visit(cu, null);
+            }
+        }
+    }
+
+    static class ClassVisitor extends VoidVisitorAdapter<Void> {
+
+        @Override
+        public void visit(ClassOrInterfaceDeclaration cd, Void arg) {
+
+            String className = cd.getFullyQualifiedName().orElse(cd.getNameAsString());
+
+            projectClasses.add(className);
+
+            dependencies.putIfAbsent(className, new HashSet<>());
+
+            cd.findAll(ClassOrInterfaceType.class)
+                    .forEach(type -> {
+
+                        try {
+                            //String usedClass2 = type.resolve().getClass().
+                            String usedClass =
+                                    type.resolve()
+                                            .getQualifiedName();
+
+                            dependencies.get(className)
+                                    .add(usedClass);
+
+                        } catch (Exception ignored) {}
+                    });
+
+            super.visit(cd, arg);
+        }
+    }
+
+    private static void generatePlantUML(String file)
+            throws IOException {
+
+        FileWriter writer = new FileWriter(file);
+
+        writer.write("@startuml\n");
+
+        for (String cls : projectClasses) {
+            writer.write("class " + cls + "\n");
+        }
+
+        for (String cls : dependencies.keySet()) {
+
+            for (String dep : dependencies.get(cls)) {
+
+                writer.write(cls + " --> " + dep + "\n");
+            }
+        }
+
+        writer.write("@enduml\n");
+
+        writer.close();
+    }
+}
+

@@ -85,6 +85,7 @@ public class ZipExtractorTree {
                                  zip.getInputStream(entry)) {
                         Files.copy(is, outPath,
                                 StandardCopyOption.REPLACE_EXISTING);
+                        //System.out.println("Found:"+Paths.get("/HOME/",entry.getName()).getParent());
                     }
                 }
 
