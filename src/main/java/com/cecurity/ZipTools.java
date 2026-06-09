@@ -8,6 +8,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.apache.commons.io.FileUtils;
 
 class Node {
     public String name;
@@ -156,9 +157,6 @@ public class ZipTools {
         for (String key : directoryMap.keySet()) {
             directoryMap.get(key).show(key, displayAll);
         }
-        // TODO Delete ./tmp dir with Commons IO FileUtils
-        // TODO public static void deleteDirectory(File directory)
-        // Files.deleteIfExists(Paths.get("./tmp"));
-
+        FileUtils.deleteDirectory(new File("./tmp"));
     }
 }
