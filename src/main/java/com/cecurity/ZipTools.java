@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -58,7 +59,6 @@ class Node {
 public class ZipTools {
 
     public static void main(String[] args) throws Exception {
-        // System.out.println("Starting ZipTools");
         if (args.length == 0) {
             System.out.println("Usage: java ZipTools <zipFilePath> <outputJsonPath>");
             return ;
@@ -73,7 +73,12 @@ public class ZipTools {
         if ((args.length == 3 ) && (args[2].equals("--debug"))) {
             displayAll = true;
         }
-
+        try {
+            ZipExtractorTree.extract(zipFilePath, "./tmp");
+        } catch (IOException e) {
+            System.err.println("Error extracting zip file: " + e.getMessage());
+            e.printStackTrace();
+        }
         Node root = new Node("root", "directory", "/");
 
         Map<String, Node> directoryMap = new HashMap<>();
@@ -151,6 +156,9 @@ public class ZipTools {
         for (String key : directoryMap.keySet()) {
             directoryMap.get(key).show(key, displayAll);
         }
+        // TODO Delete ./tmp dir with Commons IO FileUtils
+        // TODO public static void deleteDirectory(File directory)
+        // Files.deleteIfExists(Paths.get("./tmp"));
 
     }
 }

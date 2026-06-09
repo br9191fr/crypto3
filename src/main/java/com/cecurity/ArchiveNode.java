@@ -1,7 +1,7 @@
 package com.cecurity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.apache.commons.codec.cli.Digest;
+//import org.apache.commons.codec.cli.Digest;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ArchiveNode(
@@ -18,8 +18,8 @@ public record ArchiveNode(
         String depositor,
         String firstRead,
         String check,
-        //Digest digest,
-        //Digest digestCrypt,
+        Digest digest,
+        Digest digestCrypt,
         boolean isCrypted,
         Object metas,
         String mimetype,
@@ -28,3 +28,10 @@ public record ArchiveNode(
         Object alert,
         Object metacrypt
 ) {}
+
+record Digest(
+        String algo,
+        String value
+)
+
+{}

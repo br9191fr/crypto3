@@ -52,7 +52,16 @@ public class ZipExtractorTree {
     }
 
     /* ---------- EXTRACTION ---------- */
-
+    public static void extract (
+            String zipFile,
+            String outputDir) throws IOException {
+        Node root = new Node("root", true);
+        try {
+            extract(zipFile, outputDir, root);
+        } catch (IOException e) {
+            throw new IOException("Error extracting zip file", e);
+        }
+    }
     private static void extract(
             String zipFile,
             String outputDir,
@@ -94,6 +103,9 @@ public class ZipExtractorTree {
 
                 addToTree(entry, root, nodeMap);
             }
+        }
+        catch (IOException e) {
+            throw new IOException("Error extracting zip file", e);
         }
     }
 

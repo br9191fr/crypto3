@@ -72,7 +72,10 @@ public class ArchiveNodeReader {
         System.out.println("name       : " + node.name());
         System.out.println("size       : " + node.size());
         System.out.println("isCrypted  : " + node.isCrypted());
-        //System.out.println("digest algo: " + node.digest().toString());
-        //System.out.println("digest val : " + node.digest().toString());
+        System.out.println("digest algo: " + node.digest().algo());
+        System.out.println("digest val : " + node.digest().value());
+        System.out.println("digestCrypt algo: " + node.digestCrypt().algo());
+        System.out.println("digestCrypt val : " + node.digestCrypt().value());
+        {}
     }
 }
