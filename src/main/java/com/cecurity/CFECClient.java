@@ -12,8 +12,9 @@ import java.util.*;
  *
  * Executes three chained API calls:
  *   1. authenticate()   — POST /auth          → obtains the JSESSIONID cookie
- *   2. getFolderNode()  — POST /folders/{id}  → retrieves a folder node
- *   3. createFolder()   — POST /folders       — creates a new folder
+ *   2. createFolder()   — POST /folders       — creates a new folder
+ *   3. listFolders()    — GET  /plan/{name}   → retrieves a folder content
+
  *
  * The JSESSIONID from call 1 is forwarded automatically to calls 2 and 3.
  *
@@ -76,10 +77,10 @@ public class CFECClient {
         printResponse(createResponse);
 
         // ===== CALL 3 — Get folder node =====================================
-        String myFolderId = "import/test1/root"; // replace with your value
+        String myFolderName = "import/test1/root"; // replace with your value
 
         System.out.println("\n========== CALL 3 — GET FOLDER NODE ==========");
-        ApiResponse folderResponse = getFolderNode(myCFEC, mySAFE, myFolderId, sessionCookie);
+        ApiResponse folderResponse = listFolders(myCFEC, mySAFE, myFolderName, sessionCookie);
         printResponse(folderResponse);
 
     }
@@ -114,7 +115,7 @@ public class CFECClient {
                         "    }%n" +
                         "}",
                 username, password);
-
+        System.out.println("Calling API: URL: post " + url + "\nwith "+body);
         return post(url, body, null);
     }
 
@@ -132,20 +133,20 @@ public class CFECClient {
      *                      obtained from {@link #authenticate}
      * @return {@link ApiResponse} containing status, headers, cookies and body
      */
-    public static ApiResponse getFolderNode(
+    public static ApiResponse listFolders(
             String cfec,
             String safe,
-            String folderId,
+            String myFolderName,
             String sessionCookie) throws Exception {
 
-        String url = String.format("%s/vaults/%s/safes/%s/folders/%s",
-                BASE_URL, cfec, safe, folderId);
-
-        return post(url, "{}", sessionCookie);
+        String url = String.format("%s/vaults/%s/safes/%s/plan/%s",
+                BASE_URL, cfec, safe, myFolderName);
+        System.out.println("Calling API: URL: get " + url);
+        return get(url, sessionCookie);
     }
 
     // -----------------------------------------------------------------------
-    // Call 3 — Create folder
+    // Call 2 — Create folder
     // -----------------------------------------------------------------------
     /**
      * POSTs to {@code /vaults/{cfec}/safes/{safe}/folders} to create a new folder.
@@ -176,7 +177,7 @@ public class CFECClient {
                         "    \"name\": \"%s\"%n" +
                         "}",
                 parentId, parentPath, folderName);
-
+        System.out.println("Calling API: URL: post " + url + "\nwith "+body);
         return post(url, body, sessionCookie);
     }
 
@@ -210,6 +211,49 @@ public class CFECClient {
                 .header("Accept",       "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(
                         jsonBody != null ? jsonBody : ""));
+
+        if (sessionCookie != null && !sessionCookie.isBlank()) {
+            builder.header("Cookie", sessionCookie);
+        }
+
+        HttpResponse<String> raw =
+                HTTP_CLIENT.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+
+        // Collect all response headers
+        Map<String, List<String>> headers = new LinkedHashMap<>();
+        raw.headers().map().forEach((k, v) ->
+                headers.put(k == null ? "(status)" : k, v));
+
+        // Parse every Set-Cookie header
+        List<ParsedCookie> cookies = new ArrayList<>();
+        for (String setCookie : raw.headers().allValues("set-cookie")) {
+            cookies.add(ParsedCookie.parse(setCookie));
+        }
+
+        return new ApiResponse(raw.statusCode(), headers, cookies, raw.body());
+    }
+
+    // -----------------------------------------------------------------------
+    // Shared HTTP GET — mirrors post() for GET requests
+    // -----------------------------------------------------------------------
+    /**
+     * Executes an HTTP GET request and returns a fully populated
+     * {@link ApiResponse}.
+     *
+     * @param url           absolute URL to GET
+     * @param sessionCookie optional {@code "JSESSIONID=…"} value forwarded as
+     *                      the {@code Cookie} header; {@code null} to omit
+     * @return {@link ApiResponse} with status code, headers, cookies and body
+     */
+    private static ApiResponse get(
+            String url,
+            String sessionCookie) throws Exception {
+
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(TIMEOUT)
+                .header("Accept", "application/json")
+                .GET();
 
         if (sessionCookie != null && !sessionCookie.isBlank()) {
             builder.header("Cookie", sessionCookie);
