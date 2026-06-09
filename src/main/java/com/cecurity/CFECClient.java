@@ -47,7 +47,7 @@ public class CFECClient {
 
         // --- Credentials for authentication ---
         String username  = "bruno";          // replace with your username
-        String password  = "secret";         // replace with your password
+        String password  = "iZjfETr0HeWvF!Vb";         // replace with your password
 
         // ===== CALL 1 — Authenticate ========================================
         System.out.println("========== CALL 1 — AUTHENTICATE ==========");
@@ -66,21 +66,22 @@ public class CFECClient {
         }
         System.out.println("\n[INFO] Session established: " + sessionCookie);
 
-        // ===== CALL 2 — Get folder node =====================================
-        String myFolderId = "myFolderIdValue"; // replace with your value
-
-        System.out.println("\n========== CALL 2 — GET FOLDER NODE ==========");
-        ApiResponse folderResponse = getFolderNode(myCFEC, mySAFE, myFolderId, sessionCookie);
-        printResponse(folderResponse);
-
-        // ===== CALL 3 — Create folder =======================================
+        // ===== CALL 2 — Create folder =======================================
         String homeFolder    = "52218";                               // replace with your homeFolder id
-        String newFolderName = "artemis-divert-demo/src/main/java/com"; // replace as needed
+        String newFolderName = "import/test1/root"; // replace as needed
 
-        System.out.println("\n========== CALL 3 — CREATE FOLDER ==========");
+        System.out.println("\n========== CALL 2 — CREATE FOLDER ==========");
         ApiResponse createResponse = createFolder(
                 myCFEC, mySAFE, homeFolder, "HOME", newFolderName, sessionCookie);
         printResponse(createResponse);
+
+        // ===== CALL 3 — Get folder node =====================================
+        String myFolderId = "import/test1/root"; // replace with your value
+
+        System.out.println("\n========== CALL 3 — GET FOLDER NODE ==========");
+        ApiResponse folderResponse = getFolderNode(myCFEC, mySAFE, myFolderId, sessionCookie);
+        printResponse(folderResponse);
+
     }
 
     // -----------------------------------------------------------------------
