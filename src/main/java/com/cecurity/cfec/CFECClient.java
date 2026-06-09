@@ -1,5 +1,14 @@
-package com.cecurity;
+package com.cecurity.cfec;
 
+
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import com.example.cfec.VaultFolderClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -22,6 +31,8 @@ import java.util.*;
  */
 public class CFECClient {
 
+    private static final Logger log = LoggerFactory.getLogger(com.cecurity.cfec.CFECClient.class);
+
     // -----------------------------------------------------------------------
     // Configuration
     // -----------------------------------------------------------------------
@@ -30,6 +41,10 @@ public class CFECClient {
 
     private static final Duration TIMEOUT = Duration.ofSeconds(30);
 
+    private static final String PROPERTIES_RESOURCE = "/cfec.properties";
+
+    /** Root logger name used when adjusting the log level at runtime. */
+    private static final String ROOT_LOGGER = org.slf4j.Logger.ROOT_LOGGER_NAME;
     /**
      * Single shared HttpClient — thread-safe, can be reused across all calls.
      */
@@ -42,18 +57,26 @@ public class CFECClient {
     // -----------------------------------------------------------------------
     public static void main(String[] args) throws Exception {
 
+        applyLogLevel(args);
+        // ===== Load configuration ===========================================
+        CFECClient.Config cfg = CFECClient.Config.load(args);
+        log.debug("Configuration loaded: cfec={}, safe={}, username={}",
+                cfg.cfec(), cfg.safe(), cfg.username());
+        log.debug("(password is not logged)");
+
         // --- Shared parameters ---
-        String myCFEC    = "525";   // replace with your value
-        String mySAFE    = "5752";   // replace with your value
+        String myCFEC;//    = "525";   // replace with your value
+        String mySAFE;//   = "5752";   // replace with your value
 
         // --- Credentials for authentication ---
-        String username  = "bruno";          // replace with your username
-        String password  = "iZjfETr0HeWvF!Vb";         // replace with your password
+        String username;//  = "bruno";          // replace with your username
+        String password;//  = "iZjfETr0HeWvF!Vb";         // replace with your password
+
 
         // ===== CALL 1 — Authenticate ========================================
-        System.out.println("========== CALL 1 — AUTHENTICATE ==========");
-        ApiResponse authResponse = authenticate(myCFEC, mySAFE, username, password);
-        printResponse(authResponse);
+        log.info("========== CALL 1 — AUTHENTICATE ==========");
+        ApiResponse authResponse = authenticate(cfg.cfec(), cfg.safe(), cfg.username(), cfg.password());
+        logResponse(authResponse);
 
         if (authResponse.statusCode() != 200) {
             System.err.println("[ERROR] Authentication failed — aborting.");
@@ -62,27 +85,156 @@ public class CFECClient {
 
         String sessionCookie = extractSessionCookie(authResponse);
         if (sessionCookie == null) {
-            System.err.println("[ERROR] No JSESSIONID in auth response — aborting.");
+            log.info("[ERROR] No JSESSIONID in auth response — aborting.");
             return;
         }
-        System.out.println("\n[INFO] Session established: " + sessionCookie);
+        log.info("\n[INFO] Session established: " + sessionCookie);
 
         // ===== CALL 2 — Create folder =======================================
         String homeFolder    = "52218";                               // replace with your homeFolder id
         String newFolderName = "import/test1/root"; // replace as needed
 
-        System.out.println("\n========== CALL 2 — CREATE FOLDER ==========");
+        log.info("\n========== CALL 2 — CREATE FOLDER ==========");
         ApiResponse createResponse = createFolder(
-                myCFEC, mySAFE, homeFolder, "HOME", newFolderName, sessionCookie);
-        printResponse(createResponse);
+                cfg.cfec(), cfg.safe(), homeFolder, "HOME", newFolderName, sessionCookie);
+        logResponse(createResponse);
 
-        // ===== CALL 3 — Get folder node =====================================
-        String myFolderName = "import/test1/root"; // replace with your value
+        // ===== CALL 3 — Get folder list =====================================
+        String myFolderName = "import"; // replace with your value
 
-        System.out.println("\n========== CALL 3 — GET FOLDER NODE ==========");
-        ApiResponse folderResponse = listFolders(myCFEC, mySAFE, myFolderName, sessionCookie);
-        printResponse(folderResponse);
+        log.info("\n========== CALL 3 — GET FOLDER NODE ==========");
+        ApiResponse folderResponse = listFolders(cfg.cfec(), cfg.safe(), myFolderName, sessionCookie);
+        logResponse(folderResponse);
 
+    }
+    // -----------------------------------------------------------------------
+    // Log-level configuration
+    // -----------------------------------------------------------------------
+
+    /**
+     * Scans the argument list for an optional log-level token and, if found,
+     * overrides the root Logback logger level programmatically.
+     *
+     * <p>Two syntaxes are accepted (case-insensitive, position-independent):
+     * <pre>
+     *   --log=DEBUG          named flag, any position
+     *   DEBUG                bare word in arg[4]
+     * </pre>
+     *
+     * Valid level names: {@code TRACE DEBUG INFO WARN ERROR OFF}
+     * The default level (INFO) is declared in {@code logback.xml}.
+     *
+     * @param args the raw {@code main} argument array
+     */
+    private static void applyLogLevel(String[] args) {
+        String levelName = null;
+
+        // Check every arg for --log=<LEVEL>
+        for (String arg : args) {
+            if (arg != null && arg.toLowerCase().startsWith("--log=")) {
+                levelName = arg.substring("--log=".length()).trim();
+                break;
+            }
+        }
+
+        // Fall back to positional arg[4]
+        if (levelName == null && args.length > 4) {
+            levelName = args[4].trim();
+        }
+
+        if (levelName == null || levelName.isBlank()) {
+            return; // nothing to override — logback.xml default applies
+        }
+
+        Level level = Level.toLevel(levelName, null);
+        if (level == null) {
+            // Use System.out because the logger isn't configured yet
+            System.err.println("[WARN] Unknown log level '" + levelName
+                    + "' — keeping default. Valid values: TRACE DEBUG INFO WARN ERROR OFF");
+            return;
+        }
+
+        LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
+        ctx.getLogger(ROOT_LOGGER).setLevel(level);
+
+        // Announce the override on System.out so it is always visible
+        log.info("[LOG] Root log level set to " + level + " (from argument)");
+    }
+    // -----------------------------------------------------------------------
+    // Configuration loading
+    // -----------------------------------------------------------------------
+
+    /**
+     * Immutable holder for the four required runtime parameters.
+     *
+     * <p>Resolution order:
+     * <ol>
+     *   <li>Command-line arguments (positional arg[0..3])</li>
+     *   <li>Bundled {@code cfec.properties} on the classpath</li>
+     * </ol>
+     */
+    public record Config(String cfec, String safe, String username, String password) {
+
+        public static CFECClient.Config load(String[] args) {
+
+            // Strip any --log= flags before treating args as positional
+            String[] positional = Arrays.stream(args)
+                    .filter(a -> a != null && !a.toLowerCase().startsWith("--log="))
+                    .toArray(String[]::new);
+
+            // --- Step 1: read bundled properties (lowest priority) -----------
+            Properties props = new Properties();
+            try (InputStream in = VaultFolderClient.class
+                    .getResourceAsStream(PROPERTIES_RESOURCE)) {
+                if (in != null) {
+                    props.load(in);
+                    log.info("Loaded properties from classpath: {}", PROPERTIES_RESOURCE);
+                } else {
+                    log.warn("No classpath resource found at {} — relying on command-line args.",
+                            PROPERTIES_RESOURCE);
+                }
+            } catch (Exception e) {
+                log.warn("Could not read {}: {}", PROPERTIES_RESOURCE, e.getMessage());
+            }
+
+            // --- Step 2: resolve (arg overrides property) --------------------
+            String cfec     = resolve("cfec",     argAt(positional, 0), props.getProperty("cfec.vault"));
+            String safe     = resolve("safe",     argAt(positional, 1), props.getProperty("cfec.safe"));
+            String username = resolve("username", argAt(positional, 2), props.getProperty("cfec.username"));
+            String password = resolve("password", argAt(positional, 3), props.getProperty("cfec.password"));
+
+            // --- Step 3: fail fast if anything is missing --------------------
+            List<String> missing = new ArrayList<>();
+            if (cfec     == null) missing.add("cfec     (arg[0] or cfec.vault in properties)");
+            if (safe     == null) missing.add("safe     (arg[1] or cfec.safe in properties)");
+            if (username == null) missing.add("username (arg[2] or cfec.username in properties)");
+            if (password == null) missing.add("password (arg[3] or cfec.password in properties)");
+
+            if (!missing.isEmpty()) {
+                String msg = "Missing required configuration parameter(s):\n  - "
+                        + String.join("\n  - ", missing);
+                log.error(msg);
+                throw new IllegalStateException(msg);
+            }
+
+            return new CFECClient.Config(cfec, safe, username, password);
+        }
+
+        private static String argAt(String[] args, int index) {
+            return (args != null && args.length > index) ? args[index] : null;
+        }
+
+        private static String resolve(String key, String fromArgs, String fromProps) {
+            if (fromArgs != null && !fromArgs.isBlank()) {
+                log.debug("Config key '{}' resolved from command-line argument", key);
+                return fromArgs.trim();
+            }
+            if (fromProps != null && !fromProps.isBlank()) {
+                log.debug("Config key '{}' resolved from cfec.properties", key);
+                return fromProps.trim();
+            }
+            return null;
+        }
     }
 
     // -----------------------------------------------------------------------
@@ -115,7 +267,7 @@ public class CFECClient {
                         "    }%n" +
                         "}",
                 username, password);
-        System.out.println("Calling API: URL: post " + url + "\nwith "+body);
+        log.info("Calling API: URL: post " + url + "\nwith "+body);
         return post(url, body, null);
     }
 
@@ -141,7 +293,7 @@ public class CFECClient {
 
         String url = String.format("%s/vaults/%s/safes/%s/plan/%s",
                 BASE_URL, cfec, safe, myFolderName);
-        System.out.println("Calling API: URL: get " + url);
+        log.info("Calling API: URL: get " + url);
         return get(url, sessionCookie);
     }
 
@@ -177,7 +329,7 @@ public class CFECClient {
                         "    \"name\": \"%s\"%n" +
                         "}",
                 parentId, parentPath, folderName);
-        System.out.println("Calling API: URL: post " + url + "\nwith "+body);
+        log.info("Calling API: URL: post " + url + "\nwith "+body);
         return post(url, body, sessionCookie);
     }
 
@@ -297,26 +449,26 @@ public class CFECClient {
     // -----------------------------------------------------------------------
     // Helper — print an ApiResponse to stdout
     // -----------------------------------------------------------------------
-    private static void printResponse(ApiResponse response) {
-        System.out.println("\n--- HTTP Status ---");
-        System.out.println(response.statusCode());
+    private static void logResponse(ApiResponse response) {
+        log.info("\n--- HTTP Status ---");
+        log.info("Status code:"+response.statusCode());
 
-        System.out.println("\n--- Response Headers ---");
+        log.debug("\n--- Response Headers ---");
         response.headers().forEach((name, values) ->
-                values.forEach(v -> System.out.println(name + ": " + v)));
+                values.forEach(v -> log.debug(name + ": " + v)));
 
-        System.out.println("\n--- Cookies (from Set-Cookie) ---");
+        log.debug("\n--- Cookies (from Set-Cookie) ---");
         if (response.cookies().isEmpty()) {
-            System.out.println("(none)");
+            log.debug("(none)");
         } else {
             response.cookies().forEach(c ->
-                    System.out.println(c.name() + " = " + c.value()
+                    log.debug(c.name() + " = " + c.value()
                             + (c.maxAge()  != null ? "  (Max-Age=" + c.maxAge() + ")"  : "")
                             + (c.expires() != null ? "  (Expires=" + c.expires() + ")" : "")));
         }
 
-        System.out.println("\n--- JSON Body ---");
-        System.out.println(response.body());
+        log.info("\n--- JSON Body ---");
+        log.info(response.body());
     }
 
     // -----------------------------------------------------------------------
