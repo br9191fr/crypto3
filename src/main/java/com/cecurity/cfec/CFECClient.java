@@ -88,13 +88,13 @@ public class CFECClient {
             log.info("[ERROR] No JSESSIONID in auth response — aborting.");
             return;
         }
-        log.info("\n[INFO] Session established: " + sessionCookie);
+        log.info("[INFO] Session established: " + sessionCookie);
 
         // ===== CALL 2 — Create folder =======================================
         String homeFolder    = "52218";                               // replace with your homeFolder id
         String newFolderName = "import/test1/root"; // replace as needed
 
-        log.info("\n========== CALL 2 — CREATE FOLDER ==========");
+        log.info("========== CALL 2 — CREATE FOLDER ==========");
         ApiResponse createResponse = createFolder(
                 cfg.cfec(), cfg.safe(), homeFolder, "HOME", newFolderName, sessionCookie);
         logResponse(createResponse);
@@ -102,7 +102,7 @@ public class CFECClient {
         // ===== CALL 3 — Get folder list =====================================
         String myFolderName = "import"; // replace with your value
 
-        log.info("\n========== CALL 3 — GET FOLDER NODE ==========");
+        log.info("========== CALL 3 — GET FOLDER NODE ==========");
         ApiResponse folderResponse = listFolders(cfg.cfec(), cfg.safe(), myFolderName, sessionCookie);
         logResponse(folderResponse);
 
@@ -267,7 +267,15 @@ public class CFECClient {
                         "    }%n" +
                         "}",
                 username, password);
-        log.info("Calling API: URL: post " + url + "\nwith "+body);
+        String strippedBody = String.format(
+                "{%n" +
+                        "    \"auth\": {%n" +
+                        "        \"loginName\": \"%s\",%n" +
+                        "        \"password\": \"%s\"%n" +
+                        "    }%n" +
+                        "}",
+                username, "*******");
+        log.info("Calling API: URL: post " + url + "\nwith "+strippedBody);
         return post(url, body, null);
     }
 
@@ -450,14 +458,14 @@ public class CFECClient {
     // Helper — print an ApiResponse to stdout
     // -----------------------------------------------------------------------
     private static void logResponse(ApiResponse response) {
-        log.info("\n--- HTTP Status ---");
+        log.debug("--- HTTP Status ---");
         log.info("Status code:"+response.statusCode());
 
-        log.debug("\n--- Response Headers ---");
+        log.debug("--- Response Headers ---");
         response.headers().forEach((name, values) ->
                 values.forEach(v -> log.debug(name + ": " + v)));
 
-        log.debug("\n--- Cookies (from Set-Cookie) ---");
+        log.debug("--- Cookies (from Set-Cookie) ---");
         if (response.cookies().isEmpty()) {
             log.debug("(none)");
         } else {
@@ -467,7 +475,7 @@ public class CFECClient {
                             + (c.expires() != null ? "  (Expires=" + c.expires() + ")" : "")));
         }
 
-        log.info("\n--- JSON Body ---");
+        log.debug("--- JSON Body ---");
         log.info(response.body());
     }
 
